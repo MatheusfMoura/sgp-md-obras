@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGP - Levantamento de Material</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b0f19', cardBg: '#151b2b', primary: '#f97316', 
+                        danger: '#ef4444', teal: '#14b8a6', success: '#10b981', indigo: '#6366f1',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-darkBg text-slate-300 font-sans min-h-screen selection:bg-orange-500/30">
+
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-darkBg/90 z-[9999] flex-col items-center justify-center backdrop-blur-sm transition-opacity">
+        <i class="fas fa-circle-notch fa-spin text-orange-500 text-6xl mb-4"></i>
+        <h2 class="text-white text-xl font-bold tracking-widest uppercase">Processando Planilhas...</h2>
+        <p class="text-slate-400 text-xs mt-2">Isso pode levar alguns segundos dependendo do tamanho. Por favor, aguarde.</p>
+    </div>
+
+    <div id="tela-menu" class="h-[100dvh] w-full flex flex-col items-center justify-center p-4 relative overflow-hidden animate-[fadeIn_0.4s_ease-in-out]">
+        
+        <!-- Luzes Decorativas de Fundo (Glow) ajustadas para não vazar -->
+        <div class="absolute top-[-10%] left-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-orange-600/15 rounded-full blur-[80px] md:blur-[100px] pointer-events-none z-0"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-indigo-600/15 rounded-full blur-[80px] md:blur-[100px] pointer-events-none z-0"></div>
+
+        <!-- Wrapper Centralizador Enxuto -->
+        <div class="w-full max-w-5xl flex flex-col items-center relative z-10">
+            
+            <!-- Cabeçalho e Logo -->
+            <div class="text-center mb-6 md:mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-600/5 border border-orange-500/30 mb-4 shadow-[0_0_30px_rgba(249,115,22,0.2)]">
+                    <i class="fas fa-boxes-stacked text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-orange-600"></i>
+                </div>
+                <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-1 md:mb-2 tracking-tight">SGP <span class="text-orange-500">Medição</span></h1>
+                <p class="text-slate-400 text-xs md:text-base font-medium tracking-wide px-4">Levantamento, Gestão e Auditoria de Materiais</p>
+            </div>
+
+            <!-- Botão Principal Premium -->
+            <div class="w-full max-w-lg mb-8 md:mb-10 px-2">
+                <div onclick="abrirLevantamento()" class="group relative w-full cursor-pointer">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-orange-600 to-indigo-600 rounded-2xl blur opacity-30 group-hover:opacity-80 transition duration-500 group-hover:duration-200"></div>
+                    <div class="relative bg-cardBg border border-slate-700/80 rounded-2xl p-4 md:p-6 flex items-center justify-between transition-transform transform group-hover:-translate-y-1 shadow-xl">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:bg-orange-500/20 transition-colors">
+                                <i class="fas fa-rocket text-xl md:text-2xl text-orange-500"></i>
+                            </div>
+                            <div class="text-left">
+                                <h2 class="text-lg md:text-xl font-bold text-white mb-0.5 uppercase tracking-wide">Acessar Painel</h2>
+                                <p class="text-slate-400 text-[11px] md:text-sm">Iniciar auditoria e lançamentos</p>
+                            </div>
+                        </div>
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-darkBg flex items-center justify-center border border-slate-700 group-hover:border-orange-500/50 transition-colors">
+                            <i class="fas fa-chevron-right text-sm md:text-lg text-slate-500 group-hover:text-orange-500 transition-colors"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Importação Redesenhada -->
+            <div class="w-full px-2">
+                <div class="flex flex-col sm:flex-row items-center justify-between bg-cardBg border border-slate-800/80 rounded-t-2xl p-3 md:p-4 border-b-0 gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="h-6 w-1.5 bg-indigo-500 rounded-full"></div>
+                        <h3 class="text-xs md:text-sm font-bold text-white uppercase tracking-widest text-center sm:text-left">Bases de Dados (Excel)</h3>
+                    </div>
+                    <button type="button" onclick="document.getElementById('input-base-todas').click()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] md:text-[11px] font-bold py-2 px-4 md:px-6 rounded-lg transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <i class="fas fa-layer-group"></i> IMPORTAR TODAS AS BASES
+                    </button>
+                    <input type="file" id="input-base-todas" accept=".xlsx, .xls" multiple class="hidden">
+                </div>
+                
+                <!-- Grelha compacta: 2 colunas no tablet, 4 no PC -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-0 bg-cardBg border border-slate-800/80 rounded-b-2xl overflow-hidden">
+                    
+                    <!-- Card: Material Aplicado -->
+                    <div class="border-b lg:border-b-0 border-r border-slate-800/80 p-4 flex flex-col items-center text-center transition-all duration-300 relative cursor-pointer hover:bg-slate-800/40 group" id="card-base-material" onclick="document.getElementById('input-base-material').click()">
+                        <div class="absolute top-0 left-0 w-full h-0.5 bg-orange-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <!-- AQUI ESTÁ O INPUT QUE FALTAVA -->
+                        <input type="file" id="input-base-material" accept=".xlsx, .xls" class="hidden">
+                        
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-darkBg border border-slate-700/50 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-orange-500/30 transition-transform">
+                            <i class="fas fa-file-excel text-lg md:text-xl text-slate-500 group-hover:text-orange-500 transition-colors" id="icon-base-material"></i>
+                        </div>
+                        <h4 class="text-[11px] md:text-xs font-bold text-white mb-1">Material Aplicado</h4>
+                        <p class="text-[9px] md:text-[10px] text-slate-500 mb-3 h-6 md:h-8">Estruturas e insumos base.</p>
+                        <button type="button" class="text-[10px] font-bold bg-darkBg border border-slate-700 group-hover:border-orange-500/50 group-hover:text-orange-400 text-slate-400 py-1.5 px-3 rounded-lg w-full transition-all shadow-sm" id="btn-base-material">Selecionar</button>
+                    </div>
+
+                    <!-- Card: Saldo -->
+                    <div class="border-b lg:border-b-0 lg:border-r border-slate-800/80 p-4 flex flex-col items-center text-center transition-all duration-300 relative cursor-pointer hover:bg-slate-800/40 group" id="card-base-saldo" onclick="document.getElementById('input-base-saldo').click()">
+                        <div class="absolute top-0 left-0 w-full h-0.5 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <!-- AQUI ESTÁ O INPUT QUE FALTAVA -->
+                        <input type="file" id="input-base-saldo" accept=".xlsx, .xls" class="hidden">
+                        
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-darkBg border border-slate-700/50 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-blue-500/30 transition-transform">
+                            <i class="fas fa-balance-scale text-lg md:text-xl text-slate-500 group-hover:text-blue-500 transition-colors" id="icon-base-saldo"></i>
+                        </div>
+                        <h4 class="text-[11px] md:text-xs font-bold text-white mb-1">Saldo (Cons. 7-1)</h4>
+                        <p class="text-[9px] md:text-[10px] text-slate-500 mb-3 h-6 md:h-8">Saldos do estoque.</p>
+                        <button type="button" class="text-[10px] font-bold bg-darkBg border border-slate-700 group-hover:border-blue-500/50 group-hover:text-blue-400 text-slate-400 py-1.5 px-3 rounded-lg w-full transition-all shadow-sm" id="btn-base-saldo">Selecionar</button>
+                    </div>
+
+                    <!-- Card: DE-PARA -->
+                    <div class="border-r sm:border-b-0 border-slate-800/80 p-4 flex flex-col items-center text-center transition-all duration-300 relative cursor-pointer hover:bg-slate-800/40 group" id="card-base-depara" onclick="document.getElementById('input-base-depara').click()">
+                        <div class="absolute top-0 left-0 w-full h-0.5 bg-teal-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <!-- AQUI ESTÁ O INPUT QUE FALTAVA -->
+                        <input type="file" id="input-base-depara" accept=".xlsx, .xls" class="hidden">
+                        
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-darkBg border border-slate-700/50 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-teal-500/30 transition-transform">
+                            <i class="fas fa-exchange-alt text-lg md:text-xl text-slate-500 group-hover:text-teal-500 transition-colors" id="icon-base-depara"></i>
+                        </div>
+                        <h4 class="text-[11px] md:text-xs font-bold text-white mb-1">DE-PARA</h4>
+                        <p class="text-[9px] md:text-[10px] text-slate-500 mb-3 h-6 md:h-8">Regras de substituição.</p>
+                        <button type="button" class="text-[10px] font-bold bg-darkBg border border-slate-700 group-hover:border-teal-500/50 group-hover:text-teal-400 text-slate-400 py-1.5 px-3 rounded-lg w-full transition-all shadow-sm" id="btn-base-depara">Selecionar</button>
+                    </div>
+
+                    <!-- Card: Previsto -->
+                    <div class="p-4 flex flex-col items-center text-center transition-all duration-300 relative cursor-pointer hover:bg-slate-800/40 group" id="card-base-previsto" onclick="document.getElementById('input-base-previsto').click()">
+                        <div class="absolute top-0 left-0 w-full h-0.5 bg-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <!-- AQUI ESTÁ O INPUT QUE FALTAVA -->
+                        <input type="file" id="input-base-previsto" accept=".xlsx, .xls" class="hidden">
+                        
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-darkBg border border-slate-700/50 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-purple-500/30 transition-transform">
+                            <i class="fas fa-file-invoice text-lg md:text-xl text-slate-500 group-hover:text-purple-500 transition-colors" id="icon-base-previsto"></i>
+                        </div>
+                        <h4 class="text-[11px] md:text-xs font-bold text-white mb-1">Previsto (6-6-2)</h4>
+                        <p class="text-[9px] md:text-[10px] text-slate-500 mb-3 h-6 md:h-8">Baixas (RMA/DMA).</p>
+                        <button type="button" class="text-[10px] font-bold bg-darkBg border border-slate-700 group-hover:border-purple-500/50 group-hover:text-purple-400 text-slate-400 py-1.5 px-3 rounded-lg w-full transition-all shadow-sm" id="btn-base-previsto">Selecionar</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tela-levantamento" class="hidden p-3 md:p-4 animate-[zoomIn_0.3s_ease-in-out] h-[100dvh] flex flex-col">
+        
+        <header class="mb-4 flex flex-col md:flex-row items-center justify-between relative w-[98%] max-w-[1920px] mx-auto bg-cardBg border border-slate-800/80 rounded-xl px-4 py-3 shadow-sm gap-4 flex-shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="voltarMenu()" class="text-slate-400 hover:text-white flex items-center gap-2 text-xs font-bold uppercase tracking-wider transition-colors">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+                <div class="h-6 w-px bg-slate-700 hidden md:block"></div>
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-clipboard-list text-orange-500 text-base"></i>
+                    <h1 class="text-[14px] font-bold text-white tracking-tight uppercase">Painel de Materiais</h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3 w-full md:w-auto bg-darkBg border border-slate-700/80 rounded-lg pr-1 pl-4 py-1">
+                <label class="text-[10px] font-bold text-slate-400 tracking-widest uppercase whitespace-nowrap"><i class="fas fa-hashtag mr-1"></i> Nº da Obra</label>
+                <div class="w-px h-5 bg-slate-700"></div>
+                <input type="text" id="input-numero-obra" placeholder="Ex: OB-123" autocomplete="off" onkeyup="atualizarTelas()" class="w-full md:w-48 bg-transparent text-sm text-orange-400 font-bold outline-none px-2 uppercase placeholder-slate-600">
+            </div>
+        </header>
+
+        <main class="w-[98%] max-w-[1920px] mx-auto flex-1 flex flex-col min-h-0">
+            <div class="bg-cardBg border border-slate-800/80 rounded-xl shadow-lg flex flex-col flex-1 min-h-0 overflow-hidden">
+                
+                <div class="flex border-b border-slate-800 bg-darkBg/50 z-20 overflow-x-auto custom-scrollbar flex-shrink-0">
+                    <button id="tab-dir-levantamento" onclick="mudarAbaDireita('levantamento')" class="flex-1 min-w-[160px] py-3 text-[11px] font-bold uppercase tracking-widest text-orange-500 border-b-2 border-orange-500 bg-cardBg"><i class="fas fa-shopping-cart mr-2"></i>Levantamento</button>
+                    <button id="tab-dir-consolidada" onclick="mudarAbaDireita('consolidada')" class="flex-1 min-w-[140px] py-3 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b-2 border-transparent hover:text-slate-300 hover:bg-slate-800/20"><i class="fas fa-list-check mr-2"></i>Medição</button>
+                    <button id="tab-dir-estruturas" onclick="mudarAbaDireita('estruturas')" class="flex-1 min-w-[140px] py-3 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b-2 border-transparent hover:text-slate-300 hover:bg-slate-800/20"><i class="fas fa-sitemap mr-2"></i>Composição</button>
+                    <button id="tab-dir-acompanhamento" onclick="mudarAbaDireita('acompanhamento')" class="flex-1 min-w-[140px] py-3 text-[11px] font-bold uppercase tracking-widest text-slate-500 border-b-2 border-transparent hover:text-slate-300 hover:bg-slate-800/20"><i class="fas fa-tasks mr-2"></i>Previsto</button>
+                </div>
+
+                <div id="view-levantamento" class="flex flex-col lg:flex-row flex-1 h-full bg-darkBg/30 p-4 gap-4 overflow-hidden">
+                    
+                    <div class="flex-1 flex flex-col bg-cardBg border border-slate-800/80 rounded-xl overflow-hidden shadow-sm h-full">
+                        <div class="p-4 border-b border-slate-800 bg-darkBg/30 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                            <div>
+                                <h3 class="text-white font-bold text-sm uppercase tracking-wider text-orange-500"><i class="fas fa-store mr-2"></i>Estruturas</h3>
+                                <div class="flex mt-2 bg-darkBg border border-slate-700/80 rounded-lg overflow-x-auto custom-scrollbar w-fit shadow-sm max-w-full">
+                                    <button id="btn-vitrine-estruturas" onclick="mudarAbaVitrine('estruturas')" class="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest bg-orange-600/20 text-orange-500 hover:bg-orange-600/30 transition-colors whitespace-nowrap">Estruturas</button>
+                                    <button id="btn-vitrine-postes" onclick="mudarAbaVitrine('postes')" class="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white hover:bg-slate-800 transition-colors border-l border-slate-700/80 whitespace-nowrap">Postes</button>
+                                    <button id="btn-vitrine-transformadores" onclick="mudarAbaVitrine('transformadores')" class="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white hover:bg-slate-800 transition-colors border-l border-slate-700/80 whitespace-nowrap">Trafos</button>
+                                    <button id="btn-vitrine-cabos" onclick="mudarAbaVitrine('cabos')" class="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white hover:bg-slate-800 transition-colors border-l border-slate-700/80 whitespace-nowrap">Cabos</button>
+                                    <button id="btn-vitrine-outros" onclick="mudarAbaVitrine('outros')" class="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white hover:bg-slate-800 transition-colors border-l border-slate-700/80 whitespace-nowrap">Outros</button>
+                                </div>
+                            </div>
+                            <div class="relative w-full sm:w-80">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-xs"></i>
+                                <input type="text" id="input-pesquisa-vitrine" placeholder="Buscar por código ou descrição..." onkeyup="renderizarVitrine()" class="w-full bg-darkBg border border-slate-700/80 rounded-lg pl-8 pr-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500 transition-colors">
+                            </div>
+                        </div>
+                        <div id="container-vitrine" class="flex-1 overflow-y-auto custom-scrollbar p-3 grid grid-cols-1 xl:grid-cols-2 gap-2 content-start bg-darkBg/10">
+                            <div class="text-center text-slate-500 italic py-16 col-span-full"><i class="fas fa-box-open text-4xl mb-4 opacity-30 block"></i>Importe a planilha de Material Aplicado para ver os itens.</div>
+                        </div>
+                    </div>
+
+                    <div class="w-full lg:w-[340px] flex-shrink-0 flex flex-col bg-cardBg border border-slate-800/80 rounded-xl overflow-hidden shadow-sm h-full">
+                        <div class="p-3 border-b border-slate-800 bg-darkBg/50 flex justify-between items-center">
+                            <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"><i class="fas fa-shopping-cart mr-2 text-slate-500"></i>Histórico Lançado</h3>
+                            <span id="badge-historico-qtd" class="bg-orange-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm">0 Itens</span>
+                        </div>
+                        <div id="historico-estruturas" class="flex-1 overflow-y-auto custom-scrollbar p-2.5 space-y-2 bg-darkBg/10">
+                            <div class="text-center text-slate-600 text-xs italic py-4">Nenhum lançamento feito.</div>
+                        </div>
+                        <div class="p-3 border-t border-slate-800 bg-darkBg/30">
+                            <button onclick="mudarAbaDireita('consolidada')" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold py-2 rounded border border-slate-600 transition-colors"><i class="fas fa-arrow-right mr-2 text-orange-500"></i>Ir para Medição (Auditoria)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-consolidada" class="hidden flex-col flex-1 min-h-0">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center p-3 px-4 border-b border-slate-800 bg-cardBg gap-3 flex-shrink-0">
+                        <p class="text-[11px] text-slate-400">Levantamento com análise de Saldo e DE-PARA.</p>
+                        <div class="flex items-center gap-2">
+                            <div class="bg-darkBg border border-slate-700 rounded-lg px-2.5 py-1.5 flex items-center gap-2">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase">Analisar Dep.</span>
+                                <select id="select-deposito-analise" onchange="renderizarTabelaConsolidada()" class="bg-transparent text-white text-[10px] font-bold outline-none cursor-pointer">
+                                    <option value="2161">2161</option>
+                                    <option value="2165">2165</option>
+                                </select>
+                            </div>
+                            <button type="button" onclick="limparLevantamento()" class="text-slate-400 hover:text-white bg-darkBg hover:bg-danger/20 border border-slate-700 px-3 py-1.5 rounded-md text-[9px] font-bold uppercase transition-colors" title="Limpar Tudo"><i class="fas fa-trash-alt"></i></button>
+                            <button type="button" onclick="exportarExcel()" class="bg-success hover:bg-green-500 text-white px-3 py-1.5 rounded-md text-[9px] font-bold uppercase transition-colors flex items-center gap-2"><i class="fas fa-file-excel"></i> Exportar</button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-auto custom-scrollbar pb-16">
+                        <table class="w-full text-left border-collapse table-fixed min-w-[800px]">
+                            <thead class="sticky top-0 z-10 bg-cardBg shadow-sm">
+                                <tr class="text-[9px] uppercase tracking-widest text-slate-400 border-b border-slate-800">
+                                    <th class="py-2.5 px-4 w-24">Código</th>
+                                    <th class="py-2.5 px-4 w-auto">Descrição do Material</th>
+                                    <th class="py-2.5 px-4 text-center w-28">Tipo</th>
+                                    <th class="py-2.5 px-3 text-center w-24">Dep. 2161</th>
+                                    <th class="py-2.5 px-3 text-center w-24">Dep. 2165</th>
+                                    <th class="py-2.5 px-4 text-center w-28 text-orange-400">Qtd Total</th>
+                                    <th class="py-2.5 px-4 text-center w-16">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-consolidado" class="text-[12px] text-slate-300 divide-y divide-slate-800/50">
+                                <tr><td colspan="7" class="py-16 text-center text-slate-500 italic"><i class="fas fa-box-open text-4xl mb-4 opacity-30 block"></i>Adicione itens no Catálogo.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="view-estruturas" class="hidden flex-col flex-1 min-h-0 bg-darkBg/30">
+                        <div class="p-4 border-b border-slate-800 bg-cardBg flex flex-col md:flex-row md:justify-between md:items-center gap-4 flex-shrink-0">
+                            <div>
+                                <h3 class="text-white font-bold text-sm uppercase tracking-wider">Detalhamento de Composição</h3>
+                                <p class="text-[11px] text-slate-400">Análise individual de materiais por estrutura e sobras do previsto.</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="bg-darkBg border border-slate-700 rounded-lg px-2.5 py-1.5 flex items-center gap-2">
+                                    <span class="text-[9px] font-bold text-slate-400 uppercase">Analisar Dep.</span>
+                                    <select id="select-deposito-composicao" onchange="document.getElementById('select-deposito-analise').value = this.value; atualizarTelas()" class="bg-transparent text-white text-[10px] font-bold outline-none cursor-pointer">
+                                        <option value="2161">2161</option>
+                                        <option value="2165">2165</option>
+                                    </select>
+                                </div>
+                                <button type="button" onclick="exportarExcelComposicao()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-[10px] font-bold uppercase shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all flex items-center gap-2">
+                                    <i class="fas fa-file-excel text-[13px]"></i> Exportar Composição
+                                </button>
+                            </div>
+                        </div>
+                        <div id="container-composicao" class="flex-1 overflow-auto custom-scrollbar p-4 md:p-6 space-y-6 pb-16">
+                            <div class="text-center text-slate-500 italic py-16"><i class="fas fa-sitemap text-4xl mb-4 opacity-30 block"></i>Adicione estruturas para ver o detalhamento.</div>
+                        </div>
+                    </div>
+
+                <div id="view-acompanhamento" class="hidden flex-col flex-1 h-full">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center p-4 border-b border-slate-800 bg-cardBg gap-4 flex-shrink-0">
+                        <p class="text-[11px] text-slate-400">Auditoria Medição x Baixado.</p>
+                        <div class="flex items-center gap-3">
+                            <button type="button" onclick="renderizarAcompanhamento()" class="text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-md text-[10px] font-bold uppercase transition-colors flex items-center gap-2">
+                                <i class="fas fa-sync-alt text-orange-500"></i> Atualizar Status
+                            </button>
+                            <button type="button" onclick="exportarExcelAuditoria()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-md text-[10px] font-bold uppercase shadow-[0_0_15px_rgba(5,150,105,0.4)] transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                                <i class="fas fa-file-excel text-[13px]"></i> Exportar Auditoria
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-auto custom-scrollbar pb-16">
+                        <table class="w-full text-left border-collapse table-fixed min-w-[800px]">
+                            <thead class="sticky top-0 z-10 bg-cardBg shadow-sm">
+                                <tr class="text-[9px] uppercase tracking-widest text-slate-400 border-b border-slate-800">
+                                    <th class="py-2.5 px-4 w-24">Código</th>
+                                    <th class="py-2.5 px-4 w-auto">Descrição do Material</th>
+                                    <th class="py-2.5 px-3 text-center w-28">Tipo</th>
+                                    <th class="py-2.5 px-3 text-center w-24 text-orange-400">Medição</th>
+                                    <th class="py-2.5 px-3 text-center w-24 text-teal-400">Baixado</th>
+                                    <th class="py-2.5 px-3 text-center w-28 text-blue-400">Medição vs Baixado</th>
+                                    <th class="py-2.5 px-4 text-center w-32">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-acompanhamento" class="text-[12px] text-slate-300 divide-y divide-slate-800/50">
+                                <tr><td colspan="7" class="py-16 text-center text-slate-500 italic"><i class="fas fa-tasks text-4xl mb-4 opacity-30 block"></i>Filtre pelo Nº da Obra no topo para auditar.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
