@@ -663,15 +663,14 @@ function renderizarVisaoEstruturas() {
                 saldoBaixado[codigoReal][lanc.tipo] -= qtdBaixadaAqui; 
             }
 
-            // C. NOVO: Distribui o Estoque Físico (Desconta o que já foi trocado)
+            // C. NOVO: Distribui o Estoque Físico (Desconta o que já foi trocado e baixado)
             let estoqueDisponivelAqui = 0;
-            let qtdRestanteAPreencher = qtdNecessaria - qtdTrocadaAqui;
+            let qtdRestanteAPreencher = qtdNecessaria - qtdTrocadaAqui - qtdBaixadaAqui;
             if (qtdRestanteAPreencher > 0 && estoqueFisico[codigoReal] && estoqueFisico[codigoReal][depositoParaAnalise] > 0) {
                 estoqueDisponivelAqui = Math.min(qtdRestanteAPreencher, estoqueFisico[codigoReal][depositoParaAnalise]);
                 estoqueFisico[codigoReal][depositoParaAnalise] -= estoqueDisponivelAqui;
             }
             const faltaEstoque = qtdRestanteAPreencher - estoqueDisponivelAqui;
-
             // Inteligência de Alertas DE-PARA na Composição
             let bInt = '';
             if (qtdTrocadaAqui > 0.01) {
@@ -1232,24 +1231,206 @@ function exportarExcelComposicao() {
 }
 
 // ==========================================
-// EXPORTAÇÃO GLOBAL (LIGA O JS COM O HTML)
+// EXPORTAÇÃO MASTER (RELATÓRIO COMPLETO 4 EM 1)
 // ==========================================
-window.abrirLevantamento = abrirLevantamento;
-window.voltarMenu = voltarMenu;
-window.mudarAbaDireita = mudarAbaDireita;
-window.mudarQtdVitrine = mudarQtdVitrine;
-window.renderizarVitrine = renderizarVitrine;
-window.inserirDaVitrine = inserirDaVitrine;
-window.removerDoHistorico = removerDoHistorico;
-window.efetuarTroca = efetuarTroca;
-window.reverterTroca = reverterTroca;
-window.renderizarTabelaConsolidada = renderizarTabelaConsolidada;
-window.removerMaterialLinha = removerMaterialLinha;
-window.renderizarAcompanhamento = renderizarAcompanhamento;
-window.limparLevantamento = limparLevantamento;
-window.exportarExcel = exportarExcel;
+function exportarExcelMaster() {
+    if (historicoLancamentos.length === 0 && Object.keys(materiaisConsolidados).length === 0) { 
+        alert("Não há dados no levantamento para exportar."); 
+        return; 
+    }
+
+    const iOR = document.getElementById('input-numero-obra').value.trim().toUpperCase();
+    const nO = iOR.replace(/[^A-Z0-9-]/g, '').replace(/^0+/, '');
+    const numeroObraVisor = iOR || "N/A";
+    const dO = bancoPrevisto[nO] || {};
+    const depA = document.getElementById('select-deposito-analise') ? document.getElementById('select-deposito-analise').value : '2161';
+
+    const workbook = XLSX.utils.book_new();
+
+    // ---------------------------------------------------------
+    // 1. ABA: HISTÓRICO LANÇADO
+    // ---------------------------------------------------------
+    const dadosMO = historicoLancamentos.map(lanc => ({
+        "Nº DA OBRA": numeroObraVisor,
+        "ESTRUTURA / MATERIAL AVULSO": lanc.nome,
+        "QUANTIDADE": lanc.qtdVisor,
+        "TIPO": lanc.tipo === 'OPERACIONAL' ? 'Movimento' : 'Movimento de desativacao'
+    }));
+    if (dadosMO.length > 0) {
+        const wsMO = XLSX.utils.json_to_sheet(dadosMO);
+        wsMO['!cols'] = [ { wch: 15 }, { wch: 60 }, { wch: 15 }, { wch: 15 } ]; 
+        XLSX.utils.book_append_sheet(workbook, wsMO, "Histórico Lançado");
+    }
+
+    // ---------------------------------------------------------
+    // 2. ABA: MEDIÇÃO
+    // ---------------------------------------------------------
+    const dadosMedicao = [];
+    Object.keys(materiaisConsolidados).forEach(chave => {
+        const mat = materiaisConsolidados[chave];
+        if(mat.qtdTotal <= 0.001) return;
+        dadosMedicao.push({
+            "Nº DA OBRA": numeroObraVisor,
+            "DEPÓSITO": depA,
+            "CÓDIGO": mat.codigo,
+            "QUANTIDADE": parseFloat(mat.qtdTotal.toFixed(2)),
+            "DESCRIÇÃO DO MATERIAL": mat.desc,
+            "TIPO": mat.tipo === 'OPERACIONAL' ? 'Movimento' : 'Movimento de desativacao'
+        });
+    });
+    if (dadosMedicao.length > 0) {
+        const wsMed = XLSX.utils.json_to_sheet(dadosMedicao);
+        wsMed['!cols'] = [ { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 60 }, { wch: 15 } ];
+        XLSX.utils.book_append_sheet(workbook, wsMed, "Medição");
+    }
+
+    // ---------------------------------------------------------
+    // 3. ABA: COMPOSIÇÃO
+    // ---------------------------------------------------------
+    let saldoBaixado = {};
+    Object.keys(dO).forEach(cod => {
+        saldoBaixado[cod] = { 'OPERACIONAL': dO[cod]['OPERACIONAL'] || 0, 'SUCATA': dO[cod]['SUCATA'] || 0, 'desc': dO[cod].desc || "Descrição indisponível" };
+    });
+
+    let poolTrocas = {};
+    Object.keys(materiaisConsolidados).forEach(chave => {
+        const mat = materiaisConsolidados[chave];
+        if (mat.trocasAtivas && mat.trocasAtivas.length > 0) {
+            poolTrocas[chave] = 0;
+            mat.trocasAtivas.forEach(t => { poolTrocas[chave] += t.qtdOriginalTrocada; });
+        }
+    });
+
+    const dadosComposicao = [];
+    historicoLancamentos.forEach(lanc => {
+        lanc.itens.forEach(item => {
+            const codigoReal = item.chave.split('_')[0];
+            const matSalvo = materiaisConsolidados[item.chave];
+            const descricao = matSalvo ? matSalvo.desc : "Descrição indisponível";
+            const qtdNecessaria = item.qtd;
+
+            let qtdTrocadaAqui = 0;
+            if (poolTrocas[item.chave] && poolTrocas[item.chave] > 0) {
+                qtdTrocadaAqui = Math.min(qtdNecessaria, poolTrocas[item.chave]);
+                poolTrocas[item.chave] -= qtdTrocadaAqui;
+            }
+
+            let qtdBaixadaAqui = 0;
+            if (saldoBaixado[codigoReal] && saldoBaixado[codigoReal][lanc.tipo] > 0) {
+                const disponivel = saldoBaixado[codigoReal][lanc.tipo];
+                qtdBaixadaAqui = Math.min(qtdNecessaria - qtdTrocadaAqui, disponivel);
+                saldoBaixado[codigoReal][lanc.tipo] -= qtdBaixadaAqui; 
+            }
+
+            let atendidoStr = qtdBaixadaAqui.toFixed(2);
+            if(qtdTrocadaAqui > 0.01 && qtdBaixadaAqui === 0) atendidoStr = `DE-PARA`;
+            else if(qtdTrocadaAqui > 0.01) atendidoStr = `${qtdBaixadaAqui.toFixed(2)} (+${qtdTrocadaAqui.toFixed(2)} DP)`;
+
+            dadosComposicao.push({
+                "Nº DA OBRA": numeroObraVisor,
+                "GRUPO / ESTRUTURA": lanc.nome,
+                "CÓDIGO": codigoReal,
+                "DESCRIÇÃO DO MATERIAL": descricao,
+                "TIPO": lanc.tipo === 'OPERACIONAL' ? 'Movimento' : 'Movimento de desativacao',
+                "QTD NA MD": parseFloat(qtdNecessaria.toFixed(2)),
+                "RMA(PREVISTO)": atendidoStr,
+                "STATUS": (qtdNecessaria - qtdBaixadaAqui - qtdTrocadaAqui) > 0.01 ? "RMA" : "OK",
+                "BAIXADO TOTAL (SISTEMA)": "-",
+                "ORÇADO TOTAL (MD)": "-"
+            });
+        });
+    });
+
+    Object.keys(saldoBaixado).forEach(cod => {
+        ['OPERACIONAL', 'SUCATA'].forEach(tipo => {
+            const sobra = saldoBaixado[cod][tipo];
+            if (sobra > 0.001) {
+                const totalBaixado = dO[cod] ? (dO[cod][tipo] || 0) : 0;
+                const chaveMat = `${cod}_${tipo}`;
+                const orcadoMD = materiaisConsolidados[chaveMat] ? materiaisConsolidados[chaveMat].qtdTotal : 0;
+
+                dadosComposicao.push({
+                    "Nº DA OBRA": numeroObraVisor,
+                    "GRUPO / ESTRUTURA": "MOVIMENTAÇÃO NO PREVISTO",
+                    "CÓDIGO": cod,
+                    "DESCRIÇÃO DO MATERIAL": saldoBaixado[cod].desc,
+                    "TIPO": tipo === 'OPERACIONAL' ? 'Movimento' : 'Movimento de desativacao',
+                    "QTD NA MD": "-",
+                    "RMA(PREVISTO)": "-",
+                    "STATUS": orcadoMD > 0 ? "DMA" : "NÃO MEDIDO",
+                    "BAIXADO TOTAL (SISTEMA)": parseFloat(totalBaixado.toFixed(2)),
+                    "ORÇADO TOTAL (MD)": orcadoMD > 0 ? parseFloat(orcadoMD.toFixed(2)) : "-"
+                });
+            }
+        });
+    });
+
+    if (dadosComposicao.length > 0) {
+        const wsComp = XLSX.utils.json_to_sheet(dadosComposicao);
+        wsComp['!cols'] = [ { wch: 15 }, { wch: 30 }, { wch: 15 }, { wch: 60 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 15 }, { wch: 22 }, { wch: 18 } ];
+        XLSX.utils.book_append_sheet(workbook, wsComp, "Composição");
+    }
+
+    // ---------------------------------------------------------
+    // 4. ABA: PREVISTO
+    // ---------------------------------------------------------
+    const tIM = new Map();
+    Object.keys(materiaisConsolidados).forEach(k => { 
+        const mat = materiaisConsolidados[k]; 
+        const mK = `${mat.codigo}_${mat.tipo}`; 
+        if(tIM.has(mK)) tIM.get(mK).orcado += mat.qtdTotal; 
+        else tIM.set(mK, { codigo: mat.codigo, tipo: mat.tipo, desc: mat.desc, orcado: mat.qtdTotal }); 
+    });
+    
+    Object.keys(dO).forEach(cod => { 
+        ['OPERACIONAL', 'SUCATA'].forEach(tipo => { 
+            if (dO[cod][tipo] > 0) { 
+                const mK = `${cod}_${tipo}`; 
+                if (!tIM.has(mK)) tIM.set(mK, { codigo: cod, tipo: tipo, desc: dO[cod].desc, orcado: 0 }); 
+            } 
+        }); 
+    });
+
+    const dadosPrevisto = [];
+    tIM.forEach((item) => {
+        const baixado = dO[item.codigo] ? (dO[item.codigo][item.tipo] || 0) : 0;
+        const faltaBaixar = item.orcado - baixado;
+        const saldo2161 = bancoDeSaldos[item.codigo] ? (bancoDeSaldos[item.codigo]["2161"] || 0) : 0;
+        const saldo2165 = bancoDeSaldos[item.codigo] ? (bancoDeSaldos[item.codigo]["2165"] || 0) : 0;
+        
+        let obsAuditoria = "-";
+        if (item.orcado > 0 && baixado === 0) {
+            const subs = bancoDePara[item.codigo] || [];
+            subs.forEach(s => { const bSub = dO[s.cod] ? (dO[s.cod][item.tipo] || 0) : 0; if (bSub > 0) obsAuditoria = `ATENÇÃO: Foi baixado ${bSub}x do substituto [${s.cod}]`; });
+        }
+
+        dadosPrevisto.push({
+            "Nº DA OBRA": numeroObraVisor,
+            "CÓDIGO": item.codigo,
+            "DESCRIÇÃO": item.desc,
+            "TIPO": item.tipo === 'OPERACIONAL' ? 'Movimento' : 'Movimento de desativacao',
+            "ORÇADO (MEDIÇÃO)": parseFloat(item.orcado.toFixed(2)),
+            "BAIXADO (SISTEMA)": parseFloat(baixado.toFixed(2)),
+            "DIFERENÇA": parseFloat(faltaBaixar.toFixed(2)),
+            "ALERTA AUDITORIA": obsAuditoria,
+            "SALDO EST. 2161": parseFloat(saldo2161.toFixed(2)),
+            "SALDO EST. 2165": parseFloat(saldo2165.toFixed(2))
+        });
+    });
+
+    if (dadosPrevisto.length > 0) {
+        const wsPrev = XLSX.utils.json_to_sheet(dadosPrevisto);
+        wsPrev['!cols'] = [ { wch: 15 }, { wch: 15 }, { wch: 60 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 40 }, { wch: 15 }, { wch: 15 } ];
+        XLSX.utils.book_append_sheet(workbook, wsPrev, "Previsto");
+    }
+
+    // GERA O ARQUIVO FINAL COM O NOME EXATO DA OBRA
+    XLSX.writeFile(workbook, `Relatorio_Completo_SGP_${numeroObraVisor}.xlsx`);
+}
+
 window.exportarExcelAuditoria = exportarExcelAuditoria;
 window.renderizarVisaoEstruturas = renderizarVisaoEstruturas;
 window.exportarExcelComposicao = exportarExcelComposicao;
 window.atualizarTelas = atualizarTelas;
 window.mudarAbaVitrine = mudarAbaVitrine;
+window.exportarExcelMaster = exportarExcelMaster; // ESSA É A LINHA NOVA!

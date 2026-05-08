@@ -211,7 +211,10 @@
                         <div id="historico-estruturas" class="flex-1 overflow-y-auto custom-scrollbar p-2.5 space-y-2 bg-darkBg/10">
                             <div class="text-center text-slate-600 text-xs italic py-4">Nenhum lançamento feito.</div>
                         </div>
-                        <div class="p-3 border-t border-slate-800 bg-darkBg/30">
+                        <div class="p-3 border-t border-slate-800 bg-darkBg/30 flex flex-col gap-2">
+                            <button onclick="exportarExcelMaster()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold py-2 rounded shadow-[0_0_15px_rgba(5,150,105,0.4)] transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                <i class="fas fa-file-excel text-[13px]"></i> Exportar Relatório Completo
+                            </button>
                             <button onclick="mudarAbaDireita('consolidada')" class="w-full bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold py-2 rounded border border-slate-600 transition-colors"><i class="fas fa-arrow-right mr-2 text-orange-500"></i>Ir para Medição (Auditoria)</button>
                         </div>
                     </div>
