@@ -9,57 +9,66 @@ let listaDeNomesDeEstruturas = [];
 let itemAvulsoSelecionado = null; 
 
 const itensAvulsos = [
-    { cod: "37674", desc: "POSTE DT CONCR TIPO B 9M 400DAN", und: "UN", peso: null },
+    // POSTES
+    { cod: "37674", desc: "POSTE DT CONCR TIPO B 9/400", und: "UN", peso: null },
     { cod: "22846", desc: "POSTE DE CONCRETO DT 9/200", und: "UN", peso: null },
     { cod: "620301", desc: "POSTE DE CONCRETO DT 9/400", und: "UN", peso: null },
     { cod: "22792", desc: "POSTE DE CONCRETO DT 10/200", und: "UN", peso: null },
-    { cod: "90194", desc: "POSTE DISTR CONCR DT 10M 300DAN 310X420MM 110X140MM CL2", und: "UN", peso: null },
-    { cod: "22524", desc: "POSTE;DUPLO T;CONCRETO;10 M;400 DAN;", und: "UN", peso: null },
-    { cod: "90195", desc: "POSTE DISTR CONCR DT 10M 600DAN 310X420MM 110X140MM CL2", und: "UN", peso: null },
-    { cod: "90198", desc: "POSTE DISTR CONCR DT 11M 300DAN 330X448MM 110X140MM CL2", und: "UN", peso: null },
-    { cod: "90199", desc: "POSTE DISTR CONCR DT 11M 600DAN 330X448MM 110X140MM CL2", und: "UN", peso: null },
+    { cod: "90194", desc: "POSTE DISTR CONCR DT 10/300", und: "UN", peso: null },
+    { cod: "22524", desc: "POSTE DUPLO T CONCRETO 10/400", und: "UN", peso: null },
+    { cod: "90195", desc: "POSTE DISTR CONCR DT 10/600", und: "UN", peso: null },
+    { cod: "90198", desc: "POSTE DISTR CONCR DT 11/300", und: "UN", peso: null },
+    { cod: "90199", desc: "POSTE DISTR CONCR DT 11/600", und: "UN", peso: null },
     { cod: "670148", desc: "POSTE DUP T CONCRETO 11/800 DAN", und: "UN", peso: null },
-    { cod: "90203", desc: "POSTE DISTR CONCR DT 12M 600DAN 350X476MM 110X140MM CL2", und: "UN", peso: null },
-    { cod: "90200", desc: "POSTE DISTR CONCR DT 12M 1000DAN 380X518MM 140X182MM CL2", und: "UN", peso: null },
-    { cod: "91022", desc: "POSTE DIST PRFV BS/CIRC TP/QUAD 2P 11M 300DAN 373MM 168MM", und: "UN", peso: null },
-    { cod: "91021", desc: "POSTE DIST PRFV BS/CIRC TP/QUAD 2P 11M 600DAN 383MM 178MM", und: "UN", peso: null },
-    { cod: "8390", desc: "TRANSF DIST MONO 7.9KV 3KVA", und: "UN", peso: null },
-    { cod: "91026", desc: "TRANSF DISTR AER OMI 1F 7,969KV 240/120V 5KVA CL2 5TP", und: "UN", peso: null },
-    { cod: "91616", desc: "TRANSF DISTR ERA OVI 1F 7,96KV 240/120V 10KVA CL2 5TP", und: "UN", peso: null },
-    { cod: "91027", desc: "TRANSF DISTR AER OMI 1F 7,969KV 240/120V 10KVA CL2 5TP", und: "UN", peso: null },
-    { cod: "91028", desc: "TRANSF DISTR AER OMI 1F 19,919KV 240/120V 10KVA CL2 5TP", und: "UN", peso: null },
-    { cod: "91008", desc: "TRANSF DISTR AER OMI 1F / N 7,969KV 240 120V 15KVA CL2", und: "UN", peso: null },
-    { cod: "91014", desc: "TRANSF ARE DISTIBUIÇAO OMI 1F 19,919KV 240 120 15KVA CL2 5TP", und: "UN", peso: null },
-    { cod: "91007", desc: "TRANSF DISTR AER OMI 1F 7,969KV 240/120V 25KVA CL2 5TP", und: "UN", peso: null },
-    { cod: "91015", desc: "TRANSF DISTR AER OMI 1F 19,919KV 240/120V 25KVA CL2 5TP", und: "UN", peso: null },
-    { cod: "90053", desc: "TRANSF DISTR AER OMI 3F 13,8KV 220/127V 30KVA CL2 4TP", und: "UN", peso: null },
-    { cod: "90081", desc: "TRANS DISTRI ERA OM 3F 34.5KV 220/127V 30 KVA CL2", und: "UN", peso: null },
-    { cod: "90054", desc: "TRANSF DISTR AER OMI 3F 13,8KV 220/127V 45KVA CL2 4TP", und: "UN", peso: null },
-    { cod: "90082", desc: "TRANS DISTRI ERA OM 3F 34.5KV 220/127V 45KVA CL2", und: "UN", peso: null },
-    { cod: "90055", desc: "TRANSF DISTR AER OMI 3F 13,8KV 220/127V 75KVA CL2 4TP", und: "UN", peso: null },
-    { cod: "90083", desc: "TRANS DISTRI ERA OM 3F 34.5KV 220/127V 75KVA CL2", und: "UN", peso: null },
-    { cod: "90048", desc: "TRANSF DISTR AER OMI 3F 13,8KV 220/127V 112,5KVA CL2 4TP", und: "UN", peso: null },
-    { cod: "90078", desc: "TR 112,5 KVA CLASSE 36KV", und: "UN", peso: null },
-    { cod: "90049", desc: "TR 150 KVA CLASSE 13,8 KV", und: "UN", peso: null },
-    { cod: "90051", desc: "TR 225 KVA CLASSE 13,8 KV", und: "UN", peso: null },
-    { cod: "90297", desc: "CABO ALUM CONCENTR 0,6/1KV XLPE 1F 1X16MM2+16MM2", und: "M", peso: null },
-    { cod: "90263", desc: "CABO ALUM NU CAA/ASCR 1F 1/0AWG RAVEN", und: "KG", peso: 0.222 },
-    { cod: "90258", desc: "CABO ALUM NU 1F CA/AAC 2AWG IRIS", und: "KG", peso: 0.095 },
-    { cod: "90262", desc: "CABO ALUM NU CAA/ASCR 1F 2AWG SPARROW", und: "KG", peso: 0.095 },
-    { cod: "90560", desc: "CABO ALUM NU CAA/ASCR 1F 4AWG SWAN", und: "KG", peso: 0.087 },
-    { cod: "691033", desc: "CABO ALUM NU 1F CA/AAC 2/0AWG ASTER", und: "KG", peso: 0.19 },
-    { cod: "500133", desc: "CABO AL NU CA 4/0AWG", und: "KG", peso: 0.303 },
-    { cod: "90256", desc: "CORDOALHA ACO CARB CL A 7 FIOS MR 9,5MM 3160DAN", und: "KG", peso: 0.41 },
+    { cod: "90203", desc: "POSTE DISTR CONCR DT 12/600", und: "UN", peso: null },
+    { cod: "90200", desc: "POSTE DISTR CONCR DT 12/1000", und: "UN", peso: null },
+    { cod: "91022", desc: "POSTE DIST FB PRFV BS/CIRC TP/QUAD 2P 11/300", und: "UN", peso: null },
+    { cod: "91021", desc: "POSTE DIST FB PRFV BS/CIRC TP/QUAD 2P 11M/600", und: "UN", peso: null },
+
+    // TRANSFORMADORES
+    { cod: "8390", desc: "TRANSF 1F 7.9KV 3KVA", und: "UN", peso: null },
+    { cod: "91026", desc: "TRANSF 1F 7,9KV 5KVA (PRATA OLEO MINERAL)", und: "UN", peso: null },
+    { cod: "91616", desc: "TRANSF 1F 7,9KV 10KVA (VERDE OLEO VEGETAL)", und: "UN", peso: null },
+    { cod: "91618", desc: "TRANSF 1F 7,9KV 25KVA (VERDE OLEO VEGETAL)", und: "UN", peso: null },
+    { cod: "91130", desc: "TRANSF 3F 13,8KV 112,5KVA (VERDE OLEO VEGETAL)", und: "UN", peso: null },
+    { cod: "91128", desc: "TRANSF 3F 13,8KV 45KVA (VERDE OLEO VEGETAL)", und: "UN", peso: null },
+    { cod: "91129", desc: "TRANSF 3F 13,8KV 75KVA (VERDE OLEO VEGETAL)", und: "UN", peso: null },
+    { cod: "91027", desc: "TRANSF 1F 7,9KV 10KVA (PRATA OLEO MINERAL)", und: "UN", peso: null },
+    { cod: "91028", desc: "TRANSF 1F 19,9KV 10KVA (VERDE OLEO VEGETAL)", und: "UN", peso: null },
+    { cod: "91008", desc: "TRANSF 1F 7,9KV 15KVA", und: "UN", peso: null },
+    { cod: "91014", desc: "TRANSF 1F 19,9KV 15KVA", und: "UN", peso: null },
+    { cod: "91007", desc: "TRANSF 1F 7,9KV 25KVA (PRATA OLEO MINERAL)", und: "UN", peso: null },
+    { cod: "91015", desc: "TRANSF 1F 19,9KV 25KVA", und: "UN", peso: null },
+    { cod: "90053", desc: "TRANSF 3F 13,8KV 30KVA", und: "UN", peso: null },
+    { cod: "90081", desc: "TRANSF 3F 34,5KV 30KVA", und: "UN", peso: null },
+    { cod: "90054", desc: "TRANSF 3F 13,8KV 45KVA (PRATA OLEO MINERAL)", und: "UN", peso: null },
+    { cod: "90082", desc: "TRANSFORMADOR 3F 34,5KV 45KVA", und: "UN", peso: null },
+    { cod: "90055", desc: "TRANSF 3F 13,8KV 75KVA (PRATA OLEO MINERAL)", und: "UN", peso: null },
+    { cod: "90083", desc: "TRANSFORMADOR 3F 34,5KV 75KVA", und: "UN", peso: null },
+    { cod: "90048", desc: "TRANSF 3F 13,8KV 112,5KVA (PRATA OLEO MINERAL)", und: "UN", peso: null },
+    { cod: "90078", desc: "TRANSF 3F 34,5KV 112,5KVA", und: "UN", peso: null },
+    { cod: "90049", desc: "TRANSF 3F 13,8KV 150KVA", und: "UN", peso: null },
+    { cod: "90051", desc: "TRANSF 3F 13,8KV 225KVA", und: "UN", peso: null },
+
+    // CONDUTORES / CABOS
     { cod: "500091", desc: "CORDOALHA 3X2,25", und: "KG", peso: 0.18 },
-    { cod: "9523", desc: "CABO AL PROTEGIDO 50MM2-XLPE", und: "M", peso: null },
-    { cod: "90291", desc: "CABO AL PROTEGIDO 70MM2-XLPE", und: "M", peso: null },
-    { cod: "90267", desc: "CABO DE ALUM PROTSPL XLPE 1F 15,0KV 120MM", und: "M", peso: null },
-    { cod: "90290", desc: "CABO ALUM MULTIPLEX 0,6/1,0KV XLPE 3F 3X1X120MM2+70MM2", und: "M", peso: null },
-    { cod: "90268", desc: "CABO AL PROTEGIDO 185MM2-XLPE", und: "M", peso: null },
-    { cod: "90286", desc: "CABO QUADRUPLEX 3X1X16+16 MM2", und: "M", peso: null },
-    { cod: "90287", desc: "CABO ALUM MULTIPLEX 0,6/1,0KV XLPE 3F 3X1X25MM2+25MM2", und: "M", peso: null },
-    { cod: "90288", desc: "CABO ALUM MULTIPLEX 0,6/1,0KV XLPE 3F 3X1X35MM2+35MM2", und: "M", peso: null },
-    { cod: "90289", desc: "CABO ALUM MULTIPLEX 0,6/1,0KV XLPE 3F 3X1X70MM2+70MM2", und: "M", peso: null }
+    { cod: "90297", desc: "CABO DE ALUM CONCENTR 1F 1X16MM2+16MM2", und: "M", peso: null },
+    { cod: "90263", desc: "CABO ALUM NU CAA 1F 1/0AWG RAVEN", und: "KG", peso: 0.222 },
+    { cod: "90258", desc: "CABO ALUM NU 1F CA/AAC 2AWG IRIS", und: "KG", peso: 0.095 },
+    { cod: "90262", desc: "CABO ALUM NU CAA 1F 2AWG SPARROW", und: "KG", peso: 0.095 },
+    { cod: "90560", desc: "CABO ALUM NU CAA 1F 4AWG SWAN", und: "KG", peso: 0.087 },
+    { cod: "691033", desc: "CABO ALUM NU 1F CA/AAC 2/0AWG ASTER", und: "KG", peso: 0.19 },
+    { cod: "500133", desc: "CABO AL NU CA 4/0AWG OXLIP", und: "KG", peso: 0.303 },
+    { cod: "90256", desc: "CORDOALHA ACO CARB CL 7 FIOS MR 9,5MM", und: "KG", peso: 0.41 },
+    { cod: "9523", desc: "CONDUTOR CLASSE DE TENSAO INFERIOR A 69KV;ALUMINIO;ISOLADO -", und: "M", peso: null },
+    { cod: "90291", desc: "CABO ALUM PROT SPL XLPE 1F 36,2KV 70MM2", und: "M", peso: null },
+    { cod: "90267", desc: "CABO ALUM PROT SPL XLPE 1F 15,0KV 120MM2", und: "M", peso: null },
+    { cod: "90290", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X120MM2+70MM2", und: "M", peso: null },
+    { cod: "90268", desc: "CABO ALUM PROT XLPE 1F 15,0KV 185MM2 CNZ", und: "M", peso: null },
+    { cod: "90286", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X16MM2+16MM2", und: "M", peso: null },
+    { cod: "90287", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X25MM2+25MM2", und: "M", peso: null },
+    { cod: "90288", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X35MM2+35MM2", und: "M", peso: null },
+    { cod: "90289", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X70MM2+70MM2", und: "M", peso: null }
 ].sort((a, b) => a.desc.localeCompare(b.desc)); 
 
 // ==========================================
@@ -172,53 +181,73 @@ function renderizarVitrine() {
     const inputPesquisa = document.getElementById('input-pesquisa-vitrine');
     const filtro = inputPesquisa ? inputPesquisa.value.toUpperCase().trim() : "";
     
-    let html = ""; let count = 0;
+    // Reseta destaques de categorias
+    const btnCategorias = ['estruturas', 'postes', 'transformadores', 'cabos', 'outros'];
+    btnCategorias.forEach(cat => {
+        const btn = document.getElementById(`btn-vitrine-${cat}`);
+        if(btn) btn.classList.remove('categoria-com-resultado');
+    });
 
-    if (abaVitrineAtiva === 'estruturas') {
-        if (listaDeNomesDeEstruturas.length > 0) {
-            listaDeNomesDeEstruturas.filter(est => est.toUpperCase().includes(filtro)).forEach(est => {
-                count++;
+    let html = ""; 
+    let categoriasComMatch = new Set();
+
+    // LÓGICA DE BUSCA
+    if (filtro === "") {
+        // MODO NORMAL: Respeita a aba ativa
+        if (abaVitrineAtiva === 'estruturas') {
+            listaDeNomesDeEstruturas.forEach(est => {
                 const idSeguro = 'est_' + btoa(unescape(encodeURIComponent(est))).replace(/[^a-zA-Z0-9]/g, '');
                 html += criarCardVitrineHTML(idSeguro, est, "ESTRUTURA", "Estrutura Padrão", false, est);
             });
+        } else {
+            itensAvulsos.filter(item => {
+                const dU = item.desc.toUpperCase();
+                if (abaVitrineAtiva === 'postes') return /\bPOSTES?\b/.test(dU);
+                if (abaVitrineAtiva === 'transformadores') return /\b(TRANSF|TRANS|TR|TRANSFORMADOR)\b/.test(dU);
+                if (abaVitrineAtiva === 'cabos') return /\b(CABO|CABOS|CORDOALHA|FIO)\b/.test(dU);
+                if (abaVitrineAtiva === 'outros') return !(/\bPOSTES?\b/.test(dU)) && !(/\b(TRANSF|TRANS|TR|TRANSFORMADOR)\b/.test(dU)) && !(/\b(CABO|CABOS|CORDOALHA|FIO)\b/.test(dU));
+                return false;
+            }).forEach(item => {
+                const idSeguro = 'avulso_' + item.cod;
+                html += criarCardVitrineHTML(idSeguro, `${item.cod} - ${item.desc}`, "AVULSO", item.peso ? "Peso em KG" : "Unidade", true, item.cod);
+            });
         }
     } else {
-        // Lógica Inteligente para categorizar os avulsos (Usando Regex para palavras exatas)
-        itensAvulsos.filter(item => {
-            const descUpper = item.desc.toUpperCase();
-            const atendePesquisa = item.cod.includes(filtro) || descUpper.includes(filtro);
-            if(!atendePesquisa) return false;
+        // MODO GLOBAL: Busca em TUDO e marca categorias
+        // 1. Busca nas Estruturas
+        listaDeNomesDeEstruturas.forEach(est => {
+            if (est.toUpperCase().includes(filtro)) {
+                categoriasComMatch.add('estruturas');
+                const idSeguro = 'est_' + btoa(unescape(encodeURIComponent(est))).replace(/[^a-zA-Z0-9]/g, '');
+                html += criarCardVitrineHTML(idSeguro, est, "ESTRUTURA", "Estrutura Padrão", false, est);
+            }
+        });
 
-            // O \b garante que ele só vai achar a palavra exata, ignorando partes de palavras (ex: ignora o TR dentro de DISTR)
-            const isPoste = /\bPOSTES?\b/.test(descUpper);
-            const isTrafo = /\b(TRANSF|TRANS|TR|TRANSFORMADOR)\b/.test(descUpper);
-            const isCabo = /\b(CABO|CABOS|CORDOALHA|FIO)\b/.test(descUpper);
+        // 2. Busca nos Avulsos e identifica categorias
+        itensAvulsos.forEach(item => {
+            const dU = item.desc.toUpperCase();
+            if (item.cod.includes(filtro) || dU.includes(filtro)) {
+                let cat = 'outros';
+                if (/\bPOSTES?\b/.test(dU)) cat = 'postes';
+                else if (/\b(TRANSF|TRANS|TR|TRANSFORMADOR)\b/.test(dU)) cat = 'transformadores';
+                else if (/\b(CABO|CABOS|CORDOALHA|FIO)\b/.test(dU)) cat = 'cabos';
+                
+                categoriasComMatch.add(cat);
+                const idSeguro = 'avulso_' + item.cod;
+                html += criarCardVitrineHTML(idSeguro, `${item.cod} - ${item.desc}`, cat.toUpperCase().substring(0,5), item.peso ? "Peso em KG" : "Unidade", true, item.cod);
+            }
+        });
 
-            if (abaVitrineAtiva === 'postes') return isPoste;
-            if (abaVitrineAtiva === 'transformadores') return isTrafo;
-            if (abaVitrineAtiva === 'cabos') return isCabo;
-            if (abaVitrineAtiva === 'outros') return !isPoste && !isTrafo && !isCabo;
-            
-            return true;
-        }).forEach(item => {
-            count++;
-            const idSeguro = 'avulso_' + item.cod;
-            const desc = item.peso ? "Fornecido e Baixado em KG" : "Fornecido em Unidade";
-            
-            // Personaliza o Ícone e o Crachá dependendo da aba
-            let badgeText = "AVULSO"; let customIcon = "fa-plug";
-            if(abaVitrineAtiva === 'postes') { badgeText = "POSTE"; customIcon = "fa-grip-lines-vertical"; }
-            else if(abaVitrineAtiva === 'transformadores') { badgeText = "TRAFO"; customIcon = "fa-charging-station"; }
-            else if(abaVitrineAtiva === 'cabos') { badgeText = "CABO"; customIcon = "fa-wave-square"; }
-
-            html += criarCardVitrineHTML(idSeguro, `${item.cod} - ${item.desc}`, badgeText, desc, true, item.cod, customIcon);
+        // Aplica o efeito visual nos botões das categorias encontradas
+        categoriasComMatch.forEach(cat => {
+            const btn = document.getElementById(`btn-vitrine-${cat}`);
+            if(btn) btn.classList.add('categoria-com-resultado');
         });
     }
 
-    if (count === 0 && abaVitrineAtiva === 'estruturas' && listaDeNomesDeEstruturas.length === 0) {
-        container.innerHTML = `<div class="text-center text-slate-500 italic py-16 col-span-full"><i class="fas fa-file-excel text-4xl mb-4 opacity-30 block"></i>Importe a planilha de Material Aplicado para ver as estruturas.</div>`;
-    } else if (count === 0) {
-        container.innerHTML = `<div class="text-center text-slate-500 italic py-16 col-span-full"><i class="fas fa-search text-4xl mb-4 opacity-30 block"></i>Nenhum item encontrado nesta categoria.</div>`;
+    // RENDERIZAÇÃO FINAL
+    if (html === "") {
+        container.innerHTML = `<div class="text-center text-slate-500 italic py-16 col-span-full"><i class="fas fa-search text-4xl mb-4 opacity-30 block"></i>Nenhum item encontrado.</div>`;
     } else {
         container.innerHTML = html;
     }
@@ -232,7 +261,7 @@ function criarCardVitrineHTML(id, nomeVisor, badgeText, descText, isAvulso, iden
     const nomeEscapado = identificadorReal.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
     return `
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-darkBg border border-slate-700/60 p-2.5 rounded-lg hover:border-slate-500/50 transition-colors gap-2 group">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-cardBg/40 border border-slate-800 p-3.5 rounded-2xl transition-all duration-300 gap-3 group card-glow">
             <div class="flex-1 min-w-0 pr-2">
                 <div class="flex items-center gap-2 mb-0.5">
                     <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${badgeClass} flex-shrink-0">${badgeText}</span>
@@ -357,7 +386,10 @@ function importarMaterial(arrayBuffer) {
                 if (cleanCells.length >= 3) {
                     const firstCell = cleanCells[0].toUpperCase();
                     const parsedNum = parseFloat(cleanCells[0].replace(',', '.'));
-                    if (!isNaN(parsedNum) && parsedNum > 0 && !firstCell.includes("ITEM")) {
+                    // NOVO: Verifica se o primeiro é número (Qtd) E o segundo também é número (Código)
+                    const isCodigoValido = !isNaN(parseFloat(cleanCells[1]));
+
+                    if (!isNaN(parsedNum) && parsedNum > 0 && !firstCell.includes("ITEM") && isCodigoValido) {
                         const q = parsedNum; const c = cleanCells[1];
                         let descParts = cleanCells.slice(2);
                         if (descParts[descParts.length - 1] === "0") descParts.pop(); 
@@ -370,12 +402,22 @@ function importarMaterial(arrayBuffer) {
                     }
                 }
                 if (!isMaterial) {
+                    let headerEncontrado = false;
                     for (let cell of cleanCells) {
                         const cellUpper = cell.toUpperCase(); let isIgnored = false;
                         for (let ignoreWord of ignoreList) {
                             if (cellUpper.includes(ignoreWord)) { if (!cellUpper.includes("KIT CFU")) { isIgnored = true; break; } }
                         }
-                        if (!isIgnored && cell.length > 2) { estruturaAtual = cellUpper; break; }
+                        if (!isIgnored && cell.length > 2) { 
+                            estruturaAtual = cellUpper; 
+                            headerEncontrado = true;
+                            break; 
+                        }
+                    }
+                    // NOVO: Se a linha não é material e não encontrou um novo cabeçalho válido, 
+                    // "fecha" a estrutura atual para evitar que lixo de outras tabelas vaze para a anterior.
+                    if (!headerEncontrado) {
+                        estruturaAtual = "";
                     }
                 }
             });
@@ -1083,8 +1125,8 @@ function exportarExcelAuditoria() {
             "BAIXADO (SISTEMA)": parseFloat(baixado.toFixed(2)),
             "DIFERENÇA": parseFloat(faltaBaixar.toFixed(2)),
             "ALERTA AUDITORIA": obsAuditoria,
-            "SALDO EST. 2161": parseFloat(saldo2161.toFixed(2)),
-            "SALDO EST. 2165": parseFloat(saldo2165.toFixed(2))
+            "2161": parseFloat(saldo2161.toFixed(2)),
+            "2165": parseFloat(saldo2165.toFixed(2))
         };
 
         if (item.tipo === 'OPERACIONAL') mapOperacional.push(linha); else mapSucata.push(linha);
@@ -1398,29 +1440,44 @@ function exportarExcelMaster() {
         const saldo2161 = bancoDeSaldos[item.codigo] ? (bancoDeSaldos[item.codigo]["2161"] || 0) : 0;
         const saldo2165 = bancoDeSaldos[item.codigo] ? (bancoDeSaldos[item.codigo]["2165"] || 0) : 0;
         
-        let obsAuditoria = "-";
-        if (item.orcado > 0 && baixado === 0) {
-            const subs = bancoDePara[item.codigo] || [];
-            subs.forEach(s => { const bSub = dO[s.cod] ? (dO[s.cod][item.tipo] || 0) : 0; if (bSub > 0) obsAuditoria = `ATENÇÃO: Foi baixado ${bSub}x do substituto [${s.cod}]`; });
+        // Nova lógica de status baseada na diferença (faltaBaixar)
+        let statusTexto = "OK";
+        if (faltaBaixar > 0.01) {
+            statusTexto = "RMA";
+        } else if (faltaBaixar < -0.01) {
+            statusTexto = "DMA";
         }
+
+        // NOVO: Inteligência para identificar o Tipo da Obra
+        let tipoObra = "-";
+        if (numeroObraVisor.startsWith("21")) tipoObra = "CONSTRUÇÃO";
+        else if (numeroObraVisor.startsWith("22")) tipoObra = "MANUTENÇÃO";
+        else if (numeroObraVisor.startsWith("20")) tipoObra = "LPT";
 
         dadosPrevisto.push({
             "Nº DA OBRA": numeroObraVisor,
+            "DEPÓSITO": depA,
+            "TIPO DA OBRA": tipoObra,
             "CÓDIGO": item.codigo,
-            "DESCRIÇÃO": item.desc,
-            "TIPO": item.tipo === 'OPERACIONAL' ? 'Movimento' : 'Movimento de desativacao',
-            "ORÇADO (MEDIÇÃO)": parseFloat(item.orcado.toFixed(2)),
-            "BAIXADO (SISTEMA)": parseFloat(baixado.toFixed(2)),
+            "MD": parseFloat(item.orcado.toFixed(2)),
+            "RMA": parseFloat(baixado.toFixed(2)),
             "DIFERENÇA": parseFloat(faltaBaixar.toFixed(2)),
-            "ALERTA AUDITORIA": obsAuditoria,
-            "SALDO EST. 2161": parseFloat(saldo2161.toFixed(2)),
-            "SALDO EST. 2165": parseFloat(saldo2165.toFixed(2))
+            "STATUS": statusTexto,
+            "TIPO": item.tipo === 'OPERACIONAL' ? 'Movimento' : 'Movimento de desativacao',
+            "2161": parseFloat(saldo2161.toFixed(2)),
+            "2165": parseFloat(saldo2165.toFixed(2)),
+            "DESCRIÇÃO": item.desc
         });
     });
 
     if (dadosPrevisto.length > 0) {
         const wsPrev = XLSX.utils.json_to_sheet(dadosPrevisto);
-        wsPrev['!cols'] = [ { wch: 15 }, { wch: 15 }, { wch: 60 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 15 }, { wch: 40 }, { wch: 15 }, { wch: 15 } ];
+        // Atualizamos as larguras para 12 colunas, deixando a DESCRIÇÃO larga no final
+        wsPrev['!cols'] = [ 
+            { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, 
+            { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, 
+            { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 60 } 
+        ];
         XLSX.utils.book_append_sheet(workbook, wsPrev, "Previsto");
     }
 

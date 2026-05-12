@@ -44,3 +44,42 @@ select option {
     background-color: #0b0f19; 
     color: #cbd5e1; 
 }
+
+/* Efeito para categorias com resultados na busca */
+.categoria-com-resultado {
+    border-color: rgba(249, 115, 22, 0.6) !important;
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.3);
+    color: #f97316 !important;
+    position: relative;
+}
+
+.categoria-com-resultado::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 6px;
+    height: 6px;
+    background-color: #f97316;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #f97316;
+}
+
+/* Efeito de Vidro (Glassmorphism) */
+.glass-header {
+    background: rgba(21, 27, 43, 0.7) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(249, 115, 22, 0.1) !important;
+}
+
+/* Glow Suave nos Cards */
+.card-glow:hover {
+    box-shadow: 0 0 25px rgba(249, 115, 22, 0.08);
+    border-color: rgba(249, 115, 22, 0.3) !important;
+}
+
+/* Ajuste fino nos inputs */
+.input-premium:focus {
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+}
