@@ -1454,6 +1454,9 @@ function exportarExcelMaster() {
         else if (numeroObraVisor.startsWith("22")) tipoObra = "MANUTENÇÃO";
         else if (numeroObraVisor.startsWith("20")) tipoObra = "LPT";
 
+        // Lógica para identificar a origem do item
+        let origemItem = item.orcado > 0 ? "Medição (MD)" : "Orçado do Previsto";
+
         dadosPrevisto.push({
             "Nº DA OBRA": numeroObraVisor,
             "DEPÓSITO": depA,
@@ -1466,17 +1469,18 @@ function exportarExcelMaster() {
             "TIPO": item.tipo === 'OPERACIONAL' ? 'Movimento' : 'Movimento de desativacao',
             "2161": parseFloat(saldo2161.toFixed(2)),
             "2165": parseFloat(saldo2165.toFixed(2)),
-            "DESCRIÇÃO": item.desc
+            "ORIGEM": origemItem, // Nova coluna L
+            "DESCRIÇÃO": item.desc // Agora na coluna M
         });
     });
 
     if (dadosPrevisto.length > 0) {
         const wsPrev = XLSX.utils.json_to_sheet(dadosPrevisto);
-        // Atualizamos as larguras para 12 colunas, deixando a DESCRIÇÃO larga no final
+        // Atualizamos as larguras para 13 colunas
         wsPrev['!cols'] = [ 
             { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, 
             { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, 
-            { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 60 } 
+            { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 60 } 
         ];
         XLSX.utils.book_append_sheet(workbook, wsPrev, "Previsto");
     }
