@@ -68,8 +68,31 @@ const itensAvulsos = [
     { cod: "90286", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X16MM2+16MM2", und: "M", peso: null },
     { cod: "90287", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X25MM2+25MM2", und: "M", peso: null },
     { cod: "90288", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X35MM2+35MM2", und: "M", peso: null },
-    { cod: "90289", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X70MM2+70MM2", und: "M", peso: null }
-].sort((a, b) => a.desc.localeCompare(b.desc)); 
+    { cod: "90289", desc: "CABO ALUM MULTIPLEX XLPE 3F 3X1X70MM2+70MM2", und: "M", peso: null },
+    
+    // CONEXÕES E OUTROS
+    { cod: "90356", desc: "CONECTOR DUPLO 35-120MM2", und: "UN", peso: null },
+    { cod: "90797", desc: "CUNHA CN-13 6,55-10", und: "UN", peso: null },
+    { cod: "90486", desc: "CUNHA 24,30MM", und: "UN", peso: null },
+    { cod: "90487", desc: "CUNHA AZUL 14,80MM", und: "UN", peso: null },
+    { cod: "90347", desc: "CUNHA 2AWG AZ", und: "UN", peso: null },
+    { cod: "90348", desc: "CUNHA 1/0AWG AM", und: "UN", peso: null },
+    { cod: "90349", desc: "CUNHA 4/0AWG 35MM", und: "UN", peso: null },
+    { cod: "90345", desc: "CUNHA 2AWG VM", und: "UN", peso: null },
+    { cod: "9513", desc: "CUNHA 95MM", und: "UN", peso: null },
+    { cod: "90791", desc: "CUNHA1/0 AWG", und: "UN", peso: null },
+    { cod: "90479", desc: "CONECTOR DERIV H1 4,10-8,40MM/4,10-8,40MM", und: "UN", peso: null },
+    { cod: "90355", desc: "CONECTOR DERIV PERFURAT 35-120MM2", und: "UN", peso: null },
+    { cod: "90353", desc: "CONECTOR PERFURANTE 16-150MM2", und: "UN", peso: null },
+    { cod: "90461", desc: "GRAMPO LINHA VIVA ALUM 35-120MM2/10-95MM2 400A", und: "UN", peso: null },
+    { cod: "90460", desc: "GRAMPO LINHA VIVA COBR 2-1/0AWG/8-2/0AWG 100A", und: "UN", peso: null },
+    { cod: "90449", desc: "GRAMPO ANCOR 14,0-16,5MM 50MM2 400DAN", und: "UN", peso: null },
+    { cod: "90450", desc: "GRAMPO ANCOR 18,8-21,3MM 120MM2 400DAN", und: "UN", peso: null },
+    { cod: "90451", desc: "GRAMPO ANCOR 15KV 21,8-24,3MM 185MM2 400DAN", und: "UN", peso: null },
+    { cod: "90452", desc: "GRAMPO ANCOR 21,8-24,3MM 185MM2 400DAN", und: "UN", peso: null },
+    { cod: "90567", desc: "ESPACADOR LOSANGULAR 15 KV COM GARRAS", und: "UN", peso: null },
+    { cod: "90802", desc: "ESPACADOR VERTICAL (BT) 4 CONDUTORES", und: "UN", peso: null }
+].sort((a, b) => a.desc.localeCompare(b.desc));
 
 // ==========================================
 // CONTROLES DE NAVEGAÇÃO E LAYOUT
@@ -493,21 +516,35 @@ function importarPrevisto(arrayBuffer) {
         bancoPrevisto = {}; let loaded = 0; 
         workbook.SheetNames.forEach(sheetName => {
             const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1, defval: ""});
-            let iO = -1, iC = -1, iR = -1, iD = -1, iT = -1, iDescM = -1;
+            let iO = -1, iC = -1, iR = -1, iD = -1, iT = -1, iDescM = -1, iPrev = -1;
             json.forEach((row, rIdx) => {
                 if (!row || row.length === 0) return;
                 const cleanCells = row.map(v => String(v || "").toUpperCase().trim());
                 if (iO === -1) {
-                    iO = cleanCells.findIndex(v => v.includes("NUM_OBRA") || v.includes("Nº OBRA") || v === "OBRA"); iC = cleanCells.findIndex(v => v.includes("COD_ITEM_OBRA") || v.includes("CODIGO_ITEM") || v === "CÓDIGO"); iR = cleanCells.findIndex(v => v.includes("QTD_RMA") || v === "W"); iD = cleanCells.findIndex(v => v.includes("QTD_DMA") || v === "Y"); iT = cleanCells.findIndex(v => v.includes("TIPO_MOVIMENTO") || v.includes("CC_TIPO_MOVIMENTO")); iDescM = cleanCells.findIndex(v => v.includes("MATERIAL_DESCRI") || v.includes("CD_MATERIAL_DESCRICAO") || v === "DESCRIÇÃO");
-                    if (iO === -1 && rIdx >= 2) { iO = 7; iC = 18; iDescM = 19; iR = 22; iD = 24; iT = 28; } return;
+                    iO = cleanCells.findIndex(v => v.includes("NUM_OBRA") || v.includes("Nº OBRA") || v === "OBRA"); 
+                    iC = cleanCells.findIndex(v => v.includes("COD_ITEM_OBRA") || v.includes("CODIGO_ITEM") || v === "CÓDIGO"); 
+                    iR = cleanCells.findIndex(v => v.includes("QTD_RMA") || v === "W"); 
+                    iD = cleanCells.findIndex(v => v.includes("QTD_DMA") || v === "Y"); 
+                    iT = cleanCells.findIndex(v => v.includes("TIPO_MOVIMENTO") || v.includes("CC_TIPO_MOVIMENTO")); 
+                    iDescM = cleanCells.findIndex(v => v.includes("MATERIAL_DESCRI") || v.includes("CD_MATERIAL_DESCRICAO") || v === "DESCRIÇÃO");
+                    // NOVO: Busca pela coluna qtd_item_prev ou cai no fallback da coluna V (index 21)
+                    iPrev = cleanCells.findIndex(v => v === "QTD_ITEM_PREV" || v.includes("ITEM_PREV"));
+
+                    if (iO === -1 && rIdx >= 2) { iO = 7; iC = 18; iDescM = 19; iPrev = 21; iR = 22; iD = 24; iT = 28; } return;
                 }
                 const nORaw = String(row[iO] || "").toUpperCase().trim(); const nO = nORaw.replace(/[^A-Z0-9-]/g, '').replace(/^0+/, ''); const cod = String(row[iC] || "").trim(); const descMatStr = iDescM !== -1 ? String(row[iDescM] || "").trim() : "";
                 if (!nO || nO.includes("OBRA") || !cod || cod.includes("COD")) return;
-                const valRMA = parseFloat(String(row[iR] || "0").replace(',', '.')) || 0; const valDMA = parseFloat(String(row[iD] || "0").replace(',', '.')) || 0; const tipoMov = String(row[iT] || "").toUpperCase().trim();
+                const valRMA = parseFloat(String(row[iR] || "0").replace(',', '.')) || 0; 
+                const valDMA = parseFloat(String(row[iD] || "0").replace(',', '.')) || 0; 
+                const tipoMov = String(row[iT] || "").toUpperCase().trim();
+                const valPrevisto = parseFloat(String(row[iPrev] || "0").replace(',', '.')) || 0;
+
                 if (!bancoPrevisto[nO]) bancoPrevisto[nO] = {};
-                if (!bancoPrevisto[nO][cod]) bancoPrevisto[nO][cod] = { OPERACIONAL: 0, SUCATA: 0, desc: descMatStr };
+                if (!bancoPrevisto[nO][cod]) bancoPrevisto[nO][cod] = { OPERACIONAL: 0, SUCATA: 0, desc: descMatStr, QTD_PREV: 0 };
                 if (descMatStr && !bancoPrevisto[nO][cod].desc) bancoPrevisto[nO][cod].desc = descMatStr;
+                
                 if (tipoMov.includes("DESATIVA")) bancoPrevisto[nO][cod].SUCATA += valDMA; else bancoPrevisto[nO][cod].OPERACIONAL += (valRMA - valDMA);
+                bancoPrevisto[nO][cod].QTD_PREV += valPrevisto; // Acumula o Previsto
                 loaded++;
             });
         });
@@ -735,31 +772,51 @@ function renderizarVisaoEstruturas() {
             const c2161 = s["2161"] === 0 ? "text-slate-600" : "text-slate-300";
             const c2165 = s["2165"] === 0 ? "text-slate-600" : "text-slate-300";
 
-            const faltaStatus = qtdNecessaria - qtdBaixadaAqui - qtdTrocadaAqui;
-            let statusBadge = "";
-            if (faltaStatus > 0.01) statusBadge = `<span class="bg-orange-600 text-white px-2.5 py-1 rounded text-[10px] font-bold uppercase shadow-sm">RMA</span>`;
-            else statusBadge = `<span class="bg-green-600 text-white px-2.5 py-1 rounded text-[10px] font-bold uppercase shadow-sm">OK</span>`;
+            // NOVO: Puxa o valor global Orçado da Obra para este item
+            let qtdPrev = 0;
+            if (dO[codigoReal]) qtdPrev = dO[codigoReal].QTD_PREV || 0;
+            const visPrev = qtdPrev === 0 ? "-" : (Number.isInteger(qtdPrev) ? qtdPrev : qtdPrev.toFixed(2).replace('.', ','));
 
-            const qVis = Number.isInteger(qtdNecessaria) ? qtdNecessaria : qtdNecessaria.toFixed(2);
+            // NOVO: Puxa o valor global RMA baixado na planilha para este item
+            let qtdRMA = 0;
+            if (dO[codigoReal]) qtdRMA = dO[codigoReal][lanc.tipo] || 0;
+            const visRMA = qtdRMA === 0 ? "-" : (Number.isInteger(qtdRMA) ? qtdRMA : qtdRMA.toFixed(2).replace('.', ','));
+
+            // Qtd necessária calculada multiplicando o fator da estrutura
+            const qVis = Number.isInteger(qtdNecessaria) ? qtdNecessaria : qtdNecessaria.toFixed(2).replace('.', ',');
             
-            let bVis = qtdBaixadaAqui === 0 ? "-" : (Number.isInteger(qtdBaixadaAqui) ? qtdBaixadaAqui : qtdBaixadaAqui.toFixed(2));
-            let corBaixado = (qtdBaixadaAqui + qtdTrocadaAqui) >= qtdNecessaria ? 'text-green-400' : (qtdBaixadaAqui > 0 ? 'text-yellow-400' : 'text-slate-500');
-            
-            if (qtdTrocadaAqui > 0.01 && qtdBaixadaAqui === 0) {
-                bVis = `<span class="text-green-400/80 text-[10px]">DE-PARA</span>`;
-            } else if (qtdTrocadaAqui > 0.01) {
-                bVis += `<br><span class="text-green-400/80 text-[9px]">+${qtdTrocadaAqui.toFixed(2).replace(/\.00$/,'')} DP</span>`;
-            }
+            const bT = lanc.tipo === 'OPERACIONAL' ? '<div class="inline-flex items-center justify-center bg-blue-900/30 text-blue-400 px-3 py-1 rounded text-[10px] font-bold tracking-wider border border-blue-800/50 whitespace-nowrap min-w-[85px]">OPERACIONAL</div>' : '<div class="inline-flex items-center justify-center bg-red-900/30 text-red-400 px-3 py-1 rounded text-[10px] font-bold tracking-wider border border-red-800/50 whitespace-nowrap min-w-[85px]">SUCATA</div>';
 
             linhasMateriais += `
                 <tr class="border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors">
-                    <td class="py-3 px-3 font-mono text-[13px] text-slate-400 w-20 align-top">${codigoReal}</td>
-                    <td class="py-3 px-3 text-[13px] text-white whitespace-normal align-top leading-relaxed"><div class="flex-1 w-full overflow-hidden">${descricao}${bInt}</div></td>
-                    <td class="py-3 px-2 text-center font-mono text-[11px] ${c2161} bg-darkBg/10 border-l border-slate-800/50 w-14 align-top">${s2161}</td>
-                    <td class="py-3 px-2 text-center font-mono text-[11px] ${c2165} bg-darkBg/10 border-r border-slate-800/50 w-14 align-top">${s2165}</td>
-                    <td class="py-3 px-3 text-[14px] font-bold text-orange-400 text-center w-20 align-top">${qVis}</td>
-                    <td class="py-3 px-3 text-[14px] font-bold ${corBaixado} text-center w-20 align-top">${bVis}</td>
-                    <td class="py-3 px-3 text-center w-24 align-top">${statusBadge}</td>
+                    <td class="py-3.5 px-4 font-mono text-slate-400 text-[13px] w-24 align-top truncate">${codigoReal}</td>
+                    <td class="py-3.5 px-3 text-center w-24 align-top">
+                        <div class="inline-flex font-mono text-[11px] ${c2161} bg-darkBg/60 px-2.5 py-1 rounded border border-slate-700/50 shadow-inner">${s2161}</div>
+                    </td>
+                    <td class="py-3.5 px-3 text-center w-24 align-top">
+                        <div class="inline-flex font-mono text-[11px] ${c2165} bg-darkBg/60 px-2.5 py-1 rounded border border-slate-700/50 shadow-inner">${s2165}</div>
+                    </td>
+                    <td class="py-3.5 px-4 text-center w-24 align-top">
+                        <div class="inline-flex font-mono text-[11px] text-purple-400 bg-purple-900/10 px-2.5 py-1 rounded border border-purple-800/30">${visPrev}</div>
+                    </td>
+                    <td class="py-3.5 px-4 text-center w-24 align-top">
+                        <div class="inline-flex font-mono text-[11px] text-blue-400 bg-blue-900/10 px-2.5 py-1 rounded border border-purple-800/30">${visRMA}</div>
+                    </td>
+                    <td class="py-3.5 px-4 text-center w-28 align-top">
+                        <div class="inline-flex items-center justify-center bg-orange-500/10 border border-orange-500/30 text-orange-400 font-bold text-[14px] w-14 h-7 rounded-md shadow-[0_0_10px_rgba(249,115,22,0.1)]">
+                            ${qVis}
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-center w-16 align-top text-slate-600/40 font-mono text-[11px] pt-4">-</td>
+                    <td class="py-3.5 px-3 text-center w-28 align-top">${bT}</td>
+                    <td class="py-3.5 px-4 w-auto align-top">
+                        <div class="flex items-start w-full">
+                            <div class="flex flex-col flex-1 w-full overflow-hidden">
+                                <div class="text-white text-[13px] leading-relaxed" title="${descricao}">${descricao}</div>
+                                ${bInt}
+                            </div>
+                        </div>
+                    </td>
                 </tr>
             `;
         });
@@ -778,17 +835,19 @@ function renderizarVisaoEstruturas() {
                         </div>
                     </div>
                 </div>
-                <div class="p-0">
-                    <table class="w-full text-left border-collapse table-fixed">
+                <div class="p-0 overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse table-fixed min-w-[950px]">
                         <thead class="bg-darkBg/40">
-                            <tr class="text-[10px] uppercase tracking-widest text-slate-500 border-b border-slate-800">
-                                <th class="py-2.5 px-3 w-20">Código</th>
-                                <th class="py-2.5 px-3 w-auto">Material Contido</th>
-                                <th class="py-2.5 px-2 text-center w-14" title="Estoque Físico Total 2161">2161</th>
-                                <th class="py-2.5 px-2 text-center w-14" title="Estoque Físico Total 2165">2165</th>
-                                <th class="py-2.5 px-3 text-center w-20">Estrutura</th>
-                                <th class="py-2.5 px-3 text-center w-20">Baixado</th>
-                                <th class="py-2.5 px-3 text-center w-24">Status</th>
+                            <tr class="text-[9px] uppercase tracking-widest text-slate-400 border-b border-slate-800">
+                                <th class="py-2.5 px-4 w-24">Código</th>
+                                <th class="py-2.5 px-3 text-center w-24">Dep. 2161</th>
+                                <th class="py-2.5 px-3 text-center w-24">Dep. 2165</th>
+                                <th class="py-2.5 px-4 text-center w-24 text-purple-400">Orçado</th>
+                                <th class="py-2.5 px-4 text-center w-24 text-blue-400">RMA</th>
+                                <th class="py-2.5 px-4 text-center w-28 text-orange-400">Medição</th>
+                                <th class="py-2.5 px-4 text-center w-16">Ação</th>
+                                <th class="py-2.5 px-3 text-center w-28">Tipo</th>
+                                <th class="py-2.5 px-4 w-auto text-left">Material Contido</th>
                             </tr>
                         </thead>
                         <tbody>${linhasMateriais}</tbody>
@@ -898,7 +957,7 @@ function reverterTroca(chaveOriginal, idTroca) {
 function renderizarTabelaConsolidada() {
     const tbody = document.getElementById('tbody-consolidado'); if(!tbody) return; tbody.innerHTML = ""; 
     const chaves = Object.keys(materiaisConsolidados);
-    if (chaves.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="py-16 text-center text-slate-500 italic"><i class="fas fa-box-open text-4xl mb-4 opacity-30 block"></i>Adicione itens no Catálogo.</td></tr>`; return; }
+    if (chaves.length === 0) { tbody.innerHTML = `<tr><td colspan="9" class="py-16 text-center text-slate-500 italic"><i class="fas fa-box-open text-4xl mb-4 opacity-30 block"></i>Adicione itens no Catálogo.</td></tr>`; return; }
 
     const depositoParaAnalise = document.getElementById('select-deposito-analise').value;
     const oDep = depositoParaAnalise === '2161' ? '2165' : '2161';
@@ -963,15 +1022,55 @@ function renderizarTabelaConsolidada() {
         const rowOpacity = isSubsVis ? 'opacity-60 bg-darkBg/50' : '';
         const prefixoFilho = mat.isSubstituto ? `<span class="text-orange-500 font-bold mr-2 text-base opacity-70">↳</span>` : ``;
 
+        // NOVO: Puxa a Obra digitada para cruzar com a planilha Previsto
+        const numObraRaw = document.getElementById('input-numero-obra').value.trim().toUpperCase();
+        const obraFiltrada = numObraRaw.replace(/[^A-Z0-9-]/g, '').replace(/^0+/, '');
+        const objObra = bancoPrevisto[obraFiltrada] || {};
+        
+        // NOVO: Puxa o valor da coluna Previsto
+        let qtdPrev = 0;
+        if (objObra[mat.codigo]) qtdPrev = objObra[mat.codigo].QTD_PREV || 0;
+        const visPrev = qtdPrev === 0 ? "-" : (Number.isInteger(qtdPrev) ? qtdPrev : qtdPrev.toFixed(2).replace('.', ','));
+
+        // NOVO: Puxa o valor já baixado no sistema (RMA/DMA) cruzando o Tipo
+        let qtdRMA = 0;
+        if (objObra[mat.codigo]) qtdRMA = objObra[mat.codigo][mat.tipo] || 0;
+        const visRMA = qtdRMA === 0 ? "-" : (Number.isInteger(qtdRMA) ? qtdRMA : qtdRMA.toFixed(2).replace('.', ','));
+
         tr.innerHTML = `
             <td class="py-3.5 px-4 font-mono text-slate-400 text-[13px] w-24 align-top truncate ${rowOpacity}" title="${mat.codigo}">${mat.codigo}</td>
-            <td class="py-3.5 px-4 w-auto align-top"><div class="flex items-start">${prefixoFilho}<div class="flex-1 w-full overflow-hidden"><div class="text-white text-[13px] truncate max-w-[200px] lg:max-w-[400px] xl:max-w-[600px] ${rowOpacity}" title="${mat.desc}">${mat.desc}</div>${bInt}</div></div></td>
-            <td class="py-3.5 px-4 text-center w-28 align-top ${rowOpacity}">${bT}</td>
-            <td class="py-3.5 px-3 text-center font-mono ${c2161} bg-darkBg/10 border-l border-slate-800/50 w-24 align-top ${rowOpacity}">${s2161}</td>
-            <td class="py-3.5 px-3 text-center font-mono ${c2165} bg-darkBg/10 border-r border-slate-800/50 w-24 align-top ${rowOpacity}">${s2165}</td>
-            <td class="py-3.5 px-4 text-center font-bold text-base text-orange-400 bg-darkBg/30 border-l border-r border-slate-800/80 w-28 align-top ${rowOpacity}">${qVis}</td>
-            <td class="py-3.5 px-4 text-center w-16 align-top"><button type="button" onclick="removerMaterialLinha('${chave}')" class="text-slate-500 hover:text-danger bg-darkBg hover:bg-danger/10 border border-transparent hover:border-danger/30 p-1.5 rounded transition-all" title="Remover"><i class="fas fa-trash-alt"></i></button></td>
-        `; tbody.appendChild(tr);
+            <td class="py-3.5 px-3 text-center w-24 align-top ${rowOpacity}">
+                <div class="inline-flex font-mono text-[11px] ${c2161} bg-darkBg/60 px-2.5 py-1 rounded border border-slate-700/50 shadow-inner">${s2161}</div>
+            </td>
+            <td class="py-3.5 px-3 text-center w-24 align-top ${rowOpacity}">
+                <div class="inline-flex font-mono text-[11px] ${c2165} bg-darkBg/60 px-2.5 py-1 rounded border border-slate-700/50 shadow-inner">${s2165}</div>
+            </td>
+            <td class="py-3.5 px-4 text-center w-24 align-top ${rowOpacity}">
+                <div class="inline-flex font-mono text-[11px] text-purple-400 bg-purple-900/10 px-2.5 py-1 rounded border border-purple-800/30">${visPrev}</div>
+            </td>
+            <td class="py-3.5 px-4 text-center w-24 align-top ${rowOpacity}">
+                <div class="inline-flex font-mono text-[11px] text-blue-400 bg-blue-900/10 px-2.5 py-1 rounded border border-blue-800/30">${visRMA}</div>
+            </td>
+            <td class="py-3.5 px-4 text-center w-28 align-top ${rowOpacity}">
+                <div class="inline-flex items-center justify-center bg-orange-500/10 border border-orange-500/30 text-orange-400 font-bold text-[14px] w-14 h-7 rounded-md shadow-[0_0_10px_rgba(249,115,22,0.1)]">
+                    ${qVis}
+                </div>
+            </td>
+            <td class="py-3.5 px-4 text-center w-16 align-top">
+                <button type="button" onclick="removerMaterialLinha('${chave}')" class="text-slate-500 hover:text-danger bg-darkBg hover:bg-danger/10 border border-slate-700/50 hover:border-danger/50 w-7 h-7 rounded transition-all shadow-sm" title="Remover"><i class="fas fa-trash-alt text-[11px]"></i></button>
+            </td>
+            <td class="py-3.5 px-3 text-center w-28 align-top ${rowOpacity}">${bT}</td>
+            <td class="py-3.5 px-4 w-auto align-top">
+                <div class="flex items-start w-full">
+                    ${prefixoFilho}
+                    <div class="flex flex-col flex-1 w-full overflow-hidden">
+                        <div class="text-white text-[13px] ${rowOpacity} leading-relaxed" title="${mat.desc}">${mat.desc}</div>
+                        ${bInt}
+                    </div>
+                </div>
+            </td>
+        `; 
+        tbody.appendChild(tr);
     });
 }
 
