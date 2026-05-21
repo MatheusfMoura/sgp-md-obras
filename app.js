@@ -1107,16 +1107,38 @@ function renderizarAcompanhamento() {
     });
 
     Object.keys(dO).forEach(cod => {
-        const mB = dO[cod];
-        if (mB.OPERACIONAL > 0) { const c = `${cod}_OPERACIONAL`; if (!tIM.has(c)) tIM.set(c, { codigo: cod, tipo: 'OPERACIONAL', desc: mB.desc, orcado: 0 }); }
-        if (mB.SUCATA > 0) { const c = `${cod}_SUCATA`; if (!tIM.has(c)) tIM.set(c, { codigo: cod, tipo: 'SUCATA', desc: mB.desc, orcado: 0 }); }
-    });
-    
-    Array.from(tIM.values()).sort((a, b) => String(a.desc).localeCompare(String(b.desc))).forEach(item => {
-        const baixado = dO[item.codigo] ? (dO[item.codigo][item.tipo] || 0) : 0;
-        const saldoABaixar = item.orcado - baixado;
+            const mB = dO[cod];
+            if (mB.OPERACIONAL > 0) { const c = `${cod}_OPERACIONAL`; if (!tIM.has(c)) tIM.set(c, { codigo: cod, tipo: 'OPERACIONAL', desc: mB.desc, orcado: 0 }); }
+            if (mB.SUCATA > 0) { const c = `${cod}_SUCATA`; if (!tIM.has(c)) tIM.set(c, { codigo: cod, tipo: 'SUCATA', desc: mB.desc, orcado: 0 }); }
+        });
         
-        let alertasHTML = '';
+        // NOVO: Lê os valores digitados/selecionados nos filtros
+        const fCod = document.getElementById('filtro-prev-cod') ? document.getElementById('filtro-prev-cod').value.trim().toUpperCase() : "";
+        const fDesc = document.getElementById('filtro-prev-desc') ? document.getElementById('filtro-prev-desc').value.trim().toUpperCase() : "";
+        const fTipo = document.getElementById('filtro-prev-tipo') ? document.getElementById('filtro-prev-tipo').value : "";
+        const fStatus = document.getElementById('filtro-prev-status') ? document.getElementById('filtro-prev-status').value : "";
+
+        // NOVO SORT: Primeiro agrupa por Tipo (OPERACIONAL antes de SUCATA), depois por Descrição
+        Array.from(tIM.values()).sort((a, b) => {
+            if (a.tipo !== b.tipo) return a.tipo === 'OPERACIONAL' ? -1 : 1;
+            return String(a.desc).localeCompare(String(b.desc));
+        }).forEach(item => {
+            const baixado = dO[item.codigo] ? (dO[item.codigo][item.tipo] || 0) : 0;
+            const saldoABaixar = item.orcado - baixado;
+            
+            // Lógica antecipada do Status para poder usar no Filtro
+            let rawStatus = "OK";
+            if (item.orcado === 0 && baixado > 0) rawStatus = "NÃO MEDIDO";
+            else if (saldoABaixar > 0.01) rawStatus = "RMA";
+            else if (saldoABaixar < -0.01) rawStatus = "DMA";
+
+            // NOVO: Aplica os Filtros (se não bater, pula para a próxima linha sem desenhar)
+            if (fCod && !item.codigo.includes(fCod)) return;
+            if (fDesc && !item.desc.toUpperCase().includes(fDesc)) return;
+            if (fTipo && item.tipo !== fTipo) return;
+            if (fStatus && rawStatus !== fStatus) return;
+
+            let alertasHTML = '';
         if (item.orcado > 0 && baixado === 0) {
             const subs = bancoDePara[item.codigo] || [];
             subs.forEach(s => {

@@ -296,7 +296,7 @@
                     <div class="flex-1 overflow-auto custom-scrollbar pb-16">
                         <table class="w-full text-left border-collapse table-fixed min-w-[800px]">
                             <thead class="sticky top-0 z-10 bg-cardBg shadow-sm">
-                                <tr class="text-[9px] uppercase tracking-widest text-slate-400 border-b border-slate-800">
+                                <tr class="text-[9px] uppercase tracking-widest text-slate-400">
                                     <th class="py-2.5 px-4 w-24">Código</th>
                                     <th class="py-2.5 px-4 w-auto">Descrição do Material</th>
                                     <th class="py-2.5 px-3 text-center w-28">Tipo</th>
@@ -304,6 +304,29 @@
                                     <th class="py-2.5 px-3 text-center w-24 text-teal-400">Baixado</th>
                                     <th class="py-2.5 px-3 text-center w-28 text-blue-400">Medição vs Baixado</th>
                                     <th class="py-2.5 px-4 text-center w-32">Status</th>
+                                </tr>
+                                <tr class="bg-darkBg/80 border-b border-slate-700/80 shadow-inner">
+                                    <th class="py-1.5 px-2"><input type="text" id="filtro-prev-cod" onkeyup="renderizarAcompanhamento()" placeholder="Buscar cód..." class="w-full bg-darkBg border border-slate-700 rounded px-2 py-1 text-[10px] text-white focus:border-orange-500 outline-none placeholder-slate-600 transition-colors"></th>
+                                    <th class="py-1.5 px-2"><input type="text" id="filtro-prev-desc" onkeyup="renderizarAcompanhamento()" placeholder="Filtrar por descrição..." class="w-full bg-darkBg border border-slate-700 rounded px-2 py-1 text-[10px] text-white focus:border-orange-500 outline-none placeholder-slate-600 transition-colors"></th>
+                                    <th class="py-1.5 px-2">
+                                        <select id="filtro-prev-tipo" onchange="renderizarAcompanhamento()" class="w-full bg-darkBg border border-slate-700 rounded px-1 py-1 text-[10px] text-slate-300 focus:border-orange-500 outline-none cursor-pointer">
+                                            <option value="">Todos</option>
+                                            <option value="OPERACIONAL">Operacional</option>
+                                            <option value="SUCATA">Sucata</option>
+                                        </select>
+                                    </th>
+                                    <th class="py-1.5 px-2"></th>
+                                    <th class="py-1.5 px-2"></th>
+                                    <th class="py-1.5 px-2"></th>
+                                    <th class="py-1.5 px-2">
+                                        <select id="filtro-prev-status" onchange="renderizarAcompanhamento()" class="w-full bg-darkBg border border-slate-700 rounded px-1 py-1 text-[10px] text-slate-300 focus:border-orange-500 outline-none cursor-pointer">
+                                            <option value="">Todos</option>
+                                            <option value="OK">OK</option>
+                                            <option value="RMA">RMA</option>
+                                            <option value="DMA">DMA</option>
+                                            <option value="NÃO MEDIDO">Não Medido</option>
+                                        </select>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-acompanhamento" class="text-[12px] text-slate-300 divide-y divide-slate-800/50">
