@@ -1176,7 +1176,17 @@ function renderizarAcompanhamento() {
         const badgeTipo = item.tipo === 'OPERACIONAL' ? '<div class="bg-blue-600 text-white px-2 py-1 rounded text-[9px] font-bold min-w-[85px] text-center">OPERACIONAL</div>' : '<div class="bg-red-600 text-white px-2 py-1 rounded text-[9px] font-bold min-w-[85px] text-center">SUCATA</div>';
 
         const tr = document.createElement('tr'); tr.className = `transition-colors border-b border-slate-800/50 ${rowExtraClass ? rowExtraClass : 'hover:bg-slate-800/30'}`;
-        tr.innerHTML = `<td class="py-2.5 px-3 font-mono text-slate-400 text-[12px] w-20 align-middle">${item.codigo}</td><td class="py-2.5 px-3 text-white text-[12px] w-auto align-middle"><div>${item.desc}</div>${alertasHTML}</td><td class="py-2.5 px-3 text-center w-24 align-middle">${badgeTipo}</td><td class="py-2.5 px-3 text-center font-bold text-sm text-orange-400 bg-darkBg/20 border-l border-slate-800/80 w-20 align-middle">${orcadoVis}</td><td class="py-2.5 px-3 text-center font-bold text-sm text-teal-400 bg-darkBg/20 w-20 align-middle">${baixadoVis}</td><td class="py-2.5 px-3 text-center font-bold text-sm ${item.orcado === 0 ? 'text-purple-400' : 'text-blue-400'} bg-darkBg/20 border-r border-slate-800/80 w-24 align-middle">${saldoVis}</td><td class="py-2.5 px-3 text-center w-32 align-middle">${statusHTML}</td>`;
+        tr.innerHTML = `
+            <td class="py-2.5 px-4 font-mono text-slate-400 text-[12px] w-24 align-middle">${item.codigo}</td>
+            <td class="py-2.5 px-3 text-center w-28 align-middle">${badgeTipo}</td>
+            <td class="py-2.5 px-3 text-center font-bold text-sm text-orange-400 bg-darkBg/20 border-l border-slate-800/80 w-24 align-middle">${orcadoVis}</td>
+            <td class="py-2.5 px-3 text-center font-bold text-sm text-teal-400 bg-darkBg/20 w-24 align-middle">${baixadoVis}</td>
+            <td class="py-2.5 px-3 text-center font-bold text-sm ${item.orcado === 0 ? 'text-purple-400' : 'text-blue-400'} bg-darkBg/20 border-r border-slate-800/80 w-28 align-middle">${saldoVis}</td>
+            <td class="py-2.5 px-4 text-center w-32 align-middle">${statusHTML}</td>
+            <td class="py-2.5 px-4 text-white text-[12px] w-auto align-middle leading-relaxed">
+                <div>${item.desc}</div>${alertasHTML}
+            </td>
+        `;
         tbody.appendChild(tr);
     });
 }
